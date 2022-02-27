@@ -1,26 +1,40 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <todo-page></todo-page>
+  <!-- <test-app></test-app> -->
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import TodoPage from './components/list-resources/TodoPage.vue'
+// import TestApp from './components/TestApp.vue'
 
 export default {
-  name: 'App',
   components: {
-    HelloWorld
-  }
+    TodoPage,
+    // TestApp
+  },
+
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+/* @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100;0,300;0,400;1,200&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@100;200;300;400;500;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: 'Josefin Sans', sans-serif;
+}
+
+body {
+  font-size: 14px;
+  font-weight: 200;
+  /* margin: 0;
+  padding: 0;
+  height: 100vh; */
 }
 </style>

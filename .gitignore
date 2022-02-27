@@ -21,3 +21,7 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Original design documents and test file
+todo-app-main/
+src/components/TestApp.vue
