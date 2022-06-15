@@ -4,7 +4,10 @@
             <slot name="items-left"></slot>
         </div>
         <div :class="['options-bar', isVisible]">
-            <slot name="default"></slot>
+            <!-- <slot name="default"></slot> -->
+            <span @click="switchDisplay('list-all')">All</span> 
+            <span @click="switchDisplay('list-active')">Active</span>
+            <span @click="switchDisplay('list-completed')">Completed</span>
         </div>
         <div class="option">
             <slot name="clear"></slot>
@@ -14,7 +17,15 @@
 
 <script>
 export default {
-    props: ['isVisible', 'theme']
+    props: ['isVisible', 'theme'],
+
+    emits: ['switch-component'],
+
+    methods: {
+        switchDisplay(displayValue){
+            this.$emit('switch-component', displayValue);
+        }
+    }
 }
 </script>
 
@@ -42,17 +53,23 @@ export default {
     padding: 0 20%;
 }
 
+.options-bar span {
+    cursor: pointer;
+}
+
+.options-bar.show-mobile, .options-bar.show-desktop {
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    align-items: center;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
 
 .options-bar.show-mobile {
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
     display: flex;
-    -webkit-justify-content: space-between;
-    justify-content: space-between;
-    align-items: center;
-    flex-grow: 1;
-    flex-shrink: 1;
 }
 
 .options-bar.show-desktop {
@@ -89,20 +106,11 @@ export default {
         color: hsl(236, 33%, 92%);
     } */
 
-    .options-bar.show-mobile {
-        display: none;
-    }
-
     .options-bar.show-desktop {
         display: -webkit-box;
         display: -webkit-flex;
         display: -ms-flexbox;
         display: flex;
-        -webkit-justify-content: space-between;
-        justify-content: space-between;
-        align-items: center;
-        flex-grow: 1;
-        flex-shrink: 1;
     }
 }
 

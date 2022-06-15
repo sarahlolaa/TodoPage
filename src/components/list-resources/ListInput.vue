@@ -52,7 +52,7 @@ export default {
                 this.isInputEmpty = true;
             }
             else if (!trueMatch){
-                // console.log(this.inputString)
+                console.log('Activated')
                 this.$emit('collect-input', this.inputString);
                 this.inputString = '';
             }

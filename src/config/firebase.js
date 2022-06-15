@@ -4,6 +4,7 @@ import "firebase/compat/firestore"
 // import "firebase/performance"
 // import "firebase/messaging"
 
+
 const firebaseConfig = {
     //Firebase Config File
     apiKey: "AIzaSyC-ogksoBoaJHkfX5Fj_4ja3lfkFPnm06A",
@@ -14,6 +15,7 @@ const firebaseConfig = {
     messagingSenderId: "791065777779",
     appId: "1:791065777779:web:e8a28fbe91d8af8d1dfc06"
 };
+
 
 firebase.initializeApp(firebaseConfig);
 firebase

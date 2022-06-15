@@ -1,19 +1,17 @@
 <template>
 <li>
     <div class="base">
-        <!-- <base-checkbox :theme="theme" @checkbox-action = crossList></base-checkbox> -->
-        <base-checkbox :theme="theme" @checkbox-action = crossList :action="action"></base-checkbox>
+        <base-checkbox :theme="theme" @checkbox-action = "crossList" :action="action"></base-checkbox>
         <li :class="['list-items', theme, 
             { 'cross-text': lineacross, 'show-full-text': showFullText }]"  @click = "revealText">
             {{listitem}}
         </li>
-            <!-- <span class="list-items">Check it out</span> -->
-        <span class="cross-icon">
+        <span class="cross-icon" @click = "deleteList(id)">
             <img src="../../assets/icon-cross.svg" alt="cancel">
         </span>
     </div>
+    <div :class="['div-line', theme]"></div>
 </li>
-<div :class="['div-line', theme]"></div>
 </template>
 
 <script>
@@ -25,7 +23,8 @@ export default {
             action: "cancel"
         };
     },
-    props: ['listitem', 'theme'],
+    props: ['listitem', 'theme', 'id'],
+    emits: ['delete-item'],
     // props: {
         // 
     //     // key: {
@@ -47,8 +46,13 @@ export default {
             this.lineacross = !this.lineacross;
         },
 
-        revealText () {
+        revealText() {
             this.showFullText = !this.showFullText;
+        },
+
+        deleteList(listId) {
+            console.log("activated", listId);
+            this.$emit('delete-item', listId);
         }
     }
 }

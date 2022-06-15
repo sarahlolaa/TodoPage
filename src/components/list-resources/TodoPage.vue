@@ -1,44 +1,48 @@
 <template>
 <div :class="['main', themeClass]">
-    <the-header @change-Theme='changeTheme'></the-header>
-    <!-- <base-card></base-card>-->
-    <!-- <base-checkbox></base-checkbox> -->
+    <the-header @change-Theme="changeTheme"></the-header>
+   
     <base-card :theme="theme">
-      <list-input :theme="theme" @collect-input = saveInput></list-input>
+      <list-input :theme="theme" @collect-input = "saveInput"></list-input>
     </base-card>
-    <!-- <div class="sub-main"></div> -->
+
     <base-card :theme="theme">
-      <list-items
-      :theme="theme"
-      v-for='items,index in todoList'
-      :listitem='items'
-      :key='index'
-      ></list-items>
-      <options-bar :theme="theme" :isVisible="showDesktop">
+      <component 
+          :is="currentDisplay" 
+          :theme="theme" 
+          :listOfTodos="todoList"
+          @delete-item = deleteItem
+          >
+      </component>
+
+      <options-bar :theme="theme" :isVisible="showDesktop" @switch-component="switchComponent">
         <template  #items-left>
           <span> {{itemCount}} items left</span>
         </template>
-        <template #default>
+        <!-- <template #default>
           <span>All</span> 
           <span>Active</span>
           <span>Completed</span>
-        </template> 
+        </template>  -->
         <template #clear>
           <span>Clear Completed</span>
         </template>
-    </options-bar>
+      </options-bar>
     </base-card>
-    <base-card :theme="theme">
-      <options-bar :theme="theme" :isVisible="showMobile">
-        <template #default>
+    <base-card :theme="theme"  v-show="viewCard">
+      <options-bar :theme="theme" :isVisible="showMobile" @switch-component="switchComponent">
+        <!-- <template #default>
           <span>All</span> 
           <span>Active</span>
           <span>Completed</span> 
-        </template>
+        </template> -->
       </options-bar> 
     </base-card>
     <p :class="['list-reorder', theme]">Drag and drop to reorder list</p>
     <!-- <base-dialog :theme="theme" :open="isInput">
+      :list="todoListTest"
+      :group="todoListTest"
+      :item-key="todoindex"
       <p>Empty note discarded</p>
     </base-dialog> -->
 </div>
@@ -47,54 +51,77 @@
 <script>
 import TheHeader from '../layouts/TheHeader.vue'
 import ListInput from './ListInput.vue'
-import ListItems from './ListItems.vue'
 import OptionsBar from './OptionsBar.vue'
-import  firebase from "../../config/firebase.js"
+import ListAll from './ListAll.vue'
+import ListActive from './ListActive.vue'
+import ListCompleted from './ListCompleted.vue'
+import firebase from "../../config/firebase.js"
+// import { VueDraggableNext } from 'vue-draggable-next'
 // import BaseDialog from '../UI/BaseDialog.vue'
+
 
 export default {
   components: {
     TheHeader,
     ListInput,
-    ListItems,
     OptionsBar,
+    ListAll,
+    ListActive,
+    ListCompleted
+    // draggable: VueDraggableNext
     // BaseDialog
   },
 
   data() {
     return {
-      themeClass: 'light-theme',
-      theme: 'light',
-      showMobile: 'show-mobile',
       showDesktop: 'show-desktop',
-      todoList: []
-      // todoList: ['Jog around the park 3x',
-      //             '10 minutes meditation',
-      //             'Read for 1 hour',
-      //             'Pick up groceries',
-      //             'Complete Todo App on Frontend Mentor'
-      //           ]
+      showMobile: 'show-mobile',
+      theme: 'light',
+      themeClass: 'light-theme',     
+      todoList: [],
+      viewCard: null,
+      currentDisplay: 'list-all',
+      todoListTest: [{id: '1' , item: 'Jog around the park 3x', status: 0},
+                  {id: '2', item: '10 minutes meditation', status: 0},
+                  {id: '3', item: 'Read for 1 hour', status: 1},
+                  {id: '4', item: 'Pick up groceries', status: 1},
+                  {id: '5', item: 'Complete Todo App on Frontend Mentor', status: 1},
+                  {id: '6', item: 'Go to the gym', status: 0},
+                  {id: '7', item: 'Take her to the swimming pool', status: 1},
+                  {id: '8', item: 'Happy New Year', status: 1},
+                  {id: '9', item: 'Wow, its tuesday', status: 1},
+                  {id: '10', item: 'Have a great day', status: 1},
+                  {id: '11', item: 'Test the todo', status: 0},
+                ],
     }
   },
+
+  // provide() {
+  //   return {
+  //     todoList: this.todoListTest,
+  //     todoListToo: this.todoList
+  //   };
+  // },
+
   computed: {
     itemCount() {
       return this.todoList.length
     }
   },
-  // provide() {
-  //   return {
-  //     // boxtheme: computed(()=>this.theme)
-  //     boxtheme: this.theme
-  //   }
-  // },
-  // computed: {
-  //   changeTheme() {
-  //     this.themeClass
-  //   }
-  // },
+
+  created() {
+		window.addEventListener("resize", this.showCard);
+		this.showCard();
+	},
+	
   mounted(){
     this.getItems()
   },
+
+  unmounted() {
+    window.removeEventListener("resize", this.showCard);
+  },
+
   methods: {
     changeTheme() {
       if (this.themeClass === 'light-theme') {
@@ -105,32 +132,68 @@ export default {
         this.theme = 'light';
       }  
     },
+
+    showCard() {
+			this.windowWidth = window.innerWidth;
+			if (this.windowWidth <= 769) {
+        return this.viewCard = true;
+			} else {
+				return this.viewCard = false;
+			}
+		},
+
+    switchComponent(component) {
+      this.currentDisplay = component;
+    },
+
     getItems() {
-      firebase.firestore.collection("todoitems").get().then(items => {
+      firebase.firestore.collection("todoitems").orderBy("timestamp", "desc").get().then(items => {
         const todoListItems = []
         items.forEach(item => {
-          todoListItems.push(item.data().item)
-          console.log(item.data().item);
+          todoListItems.push({
+            id: item.id,
+            item: item.data().item,
+            position: item.data().position,
+            status: item.data().status
+          });
         })
         this.todoList = todoListItems
       })
     },
+
     saveInput(todoItem) {
+      // let todo = {
+      //   item: todoItem,
+      //   timestamp: new Date()
+      // }
       let todo = {
+        position: this.itemCount,
         item: todoItem,
+        status: 0,
         timestamp: new Date()
       }
-      firebase.firestore.collection("todoitem-s").add(todo).then(response => {
-        console.log("in then");
-        if (response.ok) {
-          this.todoList.push(todoItem);
+      firebase.firestore.collection("todoitems").add(todo).then(response => {
+        if (response) {
+          //console.log("response is ok", response);
+          this.todoList.unshift({
+            id: response.id,
+            item: todoItem
+          });
+          console.log(response.id)
         }
         else {
           console.log("an error occurred!")
         }
-      }).catch(e => {
-        console.log(e)
-        console.log("There was an error")
+      // }).catch(e => {
+      //   console.log(e)
+      //   console.log("There was an error")
+      })
+    },
+
+    deleteItem(listId) {
+      firebase.firestore.collection("todoitems").doc(listId).delete().then(() => {
+        const todoIndex = this.todoList.findIndex((todo) => todo.id == listId);
+        this.todoList.splice(todoIndex, 1);
       })
     }
   }
@@ -141,7 +204,7 @@ export default {
 <style scoped>
 .main {
     width: 100%;
-    padding: 2.5rem 1.5rem 0 1.5rem;
+    padding: 2.5rem 1.5rem 1rem 1.5rem;
     min-height: 100vh;
 
     background-repeat: no-repeat;
@@ -179,9 +242,9 @@ export default {
     justify-content: space-around;
 } */
 
-@media screen and (min-width: 769px) {
+@media screen and (min-width: 769px){
   .main {
-    background-size: 100% 40%;
+    background-size: 100% 28%;
   }
 
   .light-theme {
@@ -192,6 +255,13 @@ export default {
     background-image: url('../../assets/bg-desktop-dark.jpg');  
   }
 }
+
+@media screen and (min-width: 1024px){
+  .main {
+    background-size: contain;
+  }
+}
+
 
 /* .sub-main {
   background-color: hsl(0, 0%, 98%);

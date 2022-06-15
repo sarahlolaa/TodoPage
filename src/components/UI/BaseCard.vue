@@ -1,13 +1,13 @@
 <template>
-    <!-- <div class="base" :class="theme"> -->
-    <div :class="['base', theme]">
+    <div class="base" :class="theme">
+    <!-- <div :class="['base', theme]"> -->
         <slot></slot>
     </div>
 </template>
 
 <script>
 export default {
-    props: ['theme']
+    props: ['theme', 'showCard']
 }
 </script>
 
@@ -31,6 +31,7 @@ export default {
     background-color: hsl(235, 24%, 19%);
 }
 
+
 @media screen and (min-width: 769px) {
   .base {
       width: 62%;
@@ -42,6 +43,7 @@ export default {
       width: 40%;
   }
 }
+
 </style>
 
 
